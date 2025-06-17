@@ -129,17 +129,29 @@ class Calculator:
                            borderwidth=0, command=self.sqrt)
         button.grid(row=0, column=3, sticky=tk.NSEW)
 
+    def _evaluate_expression(self):
+        try:
+            expression_to_eval = self.total_expression.replace("\u00F7", "/").replace("\u00D7", "*")
+
+            if expression_to_eval and expression_to_eval[-1] in self.operations:
+                 expression_to_eval = expression_to_eval[:-1]
+
+            result = eval(expression_to_eval)
+            self.current_expression = str(result)
+            self.total_expression = ""
+        except ZeroDivisionError:
+            self.current_expression = "Divisão por zero"
+        except SyntaxError:
+            self.current_expression = "Erro de sintaxe"
+        except Exception:
+            self.current_expression = "Erro"
+        finally:
+            self.update_label()
+
     def evaluate(self):
         self.total_expression += self.current_expression
         self.update_total_label()
-        try:
-            self.current_expression = str(eval(self.total_expression))
-
-            self.total_expression = ""
-        except Exception:
-            self.current_expression = "Error"
-        finally:
-            self.update_label()
+        self._evaluate_expression()
 
     def create_equals_button(self):
         button = tk.Button(self.buttons_frame, text="=", bg=LIGHT_BLUE, fg=LABEL_COLOR, font=DEFAULT_FONT_STYLE,
